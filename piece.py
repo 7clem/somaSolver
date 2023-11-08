@@ -1,5 +1,4 @@
 import numpy as np
-import math
 import unittest
 
 # representing pieces by the positions of the unit cubes, numbered 0 to 26
