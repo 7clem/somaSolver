@@ -1,4 +1,6 @@
 import unittest
+from abc import ABC, abstractmethod
+from typing import Sequence
 
 mapping = dict()
 mapping["noop"] = dict(zip(range(27), [0, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -53,6 +55,7 @@ mapping['rZl'] = dict(zip(range(27), [6, 3, 0, 7, 4, 1, 8, 5, 2,
                   24, 21, 18, 25, 22, 19, 26, 23, 20]))
 
 
+
 def f(m:dict):
     return lambda i: m.get(i, None)
 
@@ -81,8 +84,7 @@ def compose(fnames: list):
     for fname in fnames:
         assert fname in mapping
         m = applyName(fname, m)
-        print(f'(compose: m = {m}')
-    return f(m)
+    return dict(zip(range(27), m))
 
 
 
@@ -137,5 +139,5 @@ class OpsTest(unittest.TestCase):
         transformations = ['incX', 'rXr', 'rZl', 'rZl', 'decX']
         test = [0, 1, 2, 4]
         t = compose(transformations)
-        rotated = map(f(t), test)
+        rotated = list(map(f(t), test))
         print(rotated)
