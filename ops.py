@@ -53,13 +53,12 @@ mapping['rZl'] = dict(zip(range(27), [6, 3, 0, 7, 4, 1, 8, 5, 2,
                   24, 21, 18, 25, 22, 19, 26, 23, 20]))
 
 
-def f(fname):
-    d = mapping[fname]
-    return lambda i: d.get(i, None)
+def f(m:dict):
+    return lambda i: m.get(i, None)
 
 
-def apply(fname: str, i):
-    return list(map(f(fname), i))
+def applyName(fname: str, i):
+    return list(map(f(mapping[fname]), i))
 
 
 def domain(fname):
@@ -69,16 +68,19 @@ def domain(fname):
 
 def way_and_back(way: str, back: str) -> list:
     x = domain(way)
-    f1 = apply(way, x)
-    return apply(back, f1)
+    f1 = applyName(way, x)
+    return applyName(back, f1)
 
 
-def compose(fnames):
+def compose(fnames: list):
+    """applies a series of transforms from index 0
+    @fnames list of strings of the names of the functions to applyName
+    @return a function for use in map()"""
     print(f'compose: fnames={fnames}')
     m = range(27)
     for fname in fnames:
         assert fname in mapping
-        m = apply(fname, m)
+        m = applyName(fname, m)
         print(f'(compose: m = {m}')
     return f(m)
 
@@ -94,13 +96,13 @@ class OpsTest(unittest.TestCase):
                                     18, 19, 21, 22, 24, 25])
 
     def testNoop(self):
-        f = apply('noop', range(27))
+        f = applyName('noop', range(27))
         self.assertEqual(f, list(range(27)))
 
     def testIncX(self):
         x = range(27)
-        fx = apply('incX', x)
-        ffx = apply('incX', fx)
+        fx = applyName('incX', x)
+        ffx = applyName('incX', fx)
         self.assertEqual(ffx, [2, None, None, 5, None, None, 8, None, None,
                                       11, None, None, 14, None, None, 17, None, None,
                                       20, None, None, 23, None, None, 26, None, None])
@@ -128,12 +130,12 @@ class OpsTest(unittest.TestCase):
                 continue
             x = domain(fname)
             for _ in range(4):  # 3 other times makes 4
-                x = apply(fname, x)
+                x = applyName(fname, x)
             self.assertEqual(x, domain(fname), f'{fname} applied 4 times should be identity.')
 
-    # def testCompose(self):
-    #     transformations = ['incX', 'rXr', 'rZl', 'rZl', 'decX']
-    #     testcube = [0, 1, 2, 4]
-    #     f = compose(transformations)
-    #     rotatedcube = apply(f, testcube)
-    #     print(rotatedcube)
+    def testCompose(self):
+        transformations = ['incX', 'rXr', 'rZl', 'rZl', 'decX']
+        test = [0, 1, 2, 4]
+        t = compose(transformations)
+        rotated = map(f(t), test)
+        print(rotated)
